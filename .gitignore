@@ -1,0 +1,23 @@
+# Código previo usado solo como referencia
+scratch-existing-code/
+
+# Gentle / OpenCode local workspace config
+.config/
+
+# Secrets
+.env
+.env.*
+
+# Node
+node_modules/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
