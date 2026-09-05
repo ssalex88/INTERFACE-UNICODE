@@ -311,3 +311,8 @@ es burocrático y más largo que la ventana de un piloto.
 ## Licencia
 
 MIT — ver [LICENSE](LICENSE).
+PARTICIPANTES:
+WILLIAM DIAZ Killiamss
+MARIA JIMENEZ  20248108-arch 
+ALEXANDER ssalex88
+ABIGAIL abislytering20-sys
