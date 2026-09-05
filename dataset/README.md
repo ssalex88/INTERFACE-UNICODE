@@ -1,65 +1,65 @@
-# Dataset Gastronó¡³¡mico - Universidad de Lima
+# Dataset Gastronómico - Universidad de Lima
 
 ## Descripción
 
-Dataset estructurado de opciones gastronó¡³¡micas para estudiantes de la Universidad de Lima, incluyendo restaurantes, cafeterí¡³as y establecimientos de comida dentro del campus y en el perímetro cercano (Ó¡Ó¡Ó¡val Monitor, Av. Javier Prado Este y alrededores).
+Dataset estructurado de opciones gastronómicas para estudiantes de la Universidad de Lima, incluyendo restaurantes, cafeterías y establecimientos de comida dentro del campus y en el perímetro cercano (Óval Monitor, Av. Javier Prado Este y alrededores).
 
-## Metodologí¡³a
+## Metodología
 
 ### Punto Central de Referencia
 
 - **Nombre**: Universidad de Lima - Campus Center Point
 - **Coordenadas**: -12.0775, -76.9886
-- **Direcció¡³¾n**: Av. Javier Prado Este 4600, Santiago de Surco 15023, Lima, Perú
-- **Definició¡³¾n**: Punto central aproximado del campus principal de la Universidad de Lima, ubicado en la intersecció¡³¾n de Av. Javier Prado Este y Av. Primavera. Este punto representa el centro geográ¡³fico del campus y se usa como origen para todas las mediciones de distancia caminando.
+- **Dirección**: Av. Javier Prado Este 4600, Santiago de Surco 15023, Lima, Perú
+- **Definición**: Punto central aproximado del campus principal de la Universidad de Lima, ubicado en la intersección de Av. Javier Prado Este y Av. Primavera. Este punto representa el centro geográfico del campus y se usa como origen para todas las mediciones de distancia caminando.
 - **Fuente**: https://www.ulima.edu.pe/
 - **Verificado**: 2026-09-05
 
-### Metodologí¡³a de Distancias
+### Metodología de Distancias
 
 Las distancias se calcularon utilizando:
 
 1. **Google Maps** como fuente principal para rutas peatonales reales
 2. **OpenStreetMap** como fuente secundaria
-3. **Estimaciones basadas en velocidad peatonal** (4.5-5 km/h) cuando no habí¡³a datos directos
+3. **Estimaciones basadas en velocidad peatonal** (4.5-5 km/h) cuando no había datos directos
 
 **Reglas aplicadas**:
-- No se usa distancia en lí­nea recta como distancia principal
+- No se usa distancia en línea recta como distancia principal
 - Para establecimientos dentro del campus, se marca `on_campus = true` y se registra distancia aproximada desde el punto central
 - Los tiempos de caminata se redondean al minuto más cercano
 - Se usa `distance_confidence` para indicar nivel de certeza: high, medium, low
 
 ### Fuentes Principales
 
-1. **Menó¡º¡­s oficiales de restaurantes**: Bembos, Chinawok, Starbucks, Sushi Pop
+1. **Menús oficiales de restaurantes**: Bembos, Chinawok, Starbucks, Sushi Pop
 2. **Plataformas de delivery**: Rappi, PedidosYa
 3. **Sitio web oficial de ULima**: Para establecimientos dentro del campus
 4. **Google Maps**: Para ubicaciones, coordenadas y rutas peatonales
-5. **Exynia**: Base de datos de menó¡º¡­s y precios de cadenas en Perú
+5. **Exynia**: Base de datos de menús y precios de cadenas en Perú
 
 ### Fecha de Consulta
 
 - **Primera consulta**: 2026-09-05
-- **Verificació¡³¾n de precios**: Agosto-Septiembre 2026
+- **Verificación de precios**: Agosto-Septiembre 2026
 - **Estado actual**: open para todos los establecimientos listados
 
 ## Limitaciones
 
 1. **Precios**: Los precios pueden variar entre locales y canales (web oficial vs. apps de delivery)
-2. **Ubicaciones especí¡³ficas dentro del campus**: Algunos establecimientos tienen mó¡º¡­ltiples ubicaciones dentro de ULima
-3. **Horarios**: Los horarios pueden cambiar en d í­as festivos o periodos vacacionales
+2. **Ubicaciones específicas dentro del campus**: Algunos establecimientos tienen múltiples ubicaciones dentro de ULima
+3. **Horarios**: Los horarios pueden cambiar en d ías festivos o periodos vacacionales
 4. **Disponibilidad**: Algunos platos pueden no estar disponibles temporalmente
 5. **Cobertura**: Este dataset prioriza establecimientos verificados; puede haber opciones no incluidas por falta de evidencia suficiente
 
 ## Reglas de Calidad
 
-- **No alucinació¡³¾n**: Es preferible dejar un campo en `null` que inventar un dato
-- **Verificació¡³¾n**: Cada precio debe tener fuente documentada
+- **No alucinación**: Es preferible dejar un campo en `null` que inventar un dato
+- **Verificación**: Cada precio debe tener fuente documentada
 - **Trazabilidad**: Cada registro incluye `verified_at` y `source_url`
 - **Consistencia**: IDs estables en formato `REST-XXXX`, `DISH-XXXXXX`, `LOC-XXXX`
 - **Formato**: snake_case, tipos de datos consistentes, booleanos reales (`true/false`)
 
-## Interpretació¡³¾n de Valores
+## Interpretación de Valores
 
 ### `null`
 
@@ -67,35 +67,35 @@ Indica que el dato no está disponible o no pudo ser verificado. No usar textos 
 
 ### Niveles de Confianza
 
-- **`verified`**: Dato verificado en fuente oficial o mó¡º¡­ltiples fuentes
+- **`verified`**: Dato verificado en fuente oficial o múltiples fuentes
 - **`estimated`**: Dato estimado basado en reglas o promedios
-- **`inferred`**: Dato inferido ló¡³¡gicamente pero no verificado directamente
+- **`inferred`**: Dato inferido lógicamente pero no verificado directamente
 - **`unknown`**: Dato desconocido, sin evidencia suficiente
 
 ### `distance_confidence` y `data_confidence`
 
-- **`high`**: Mó¡º¡­ltiples fuentes coincidentes o fuente oficial directa
-- **`medium`**: Una fuente confiable o estimació¡³¾n razonable
-- **`low`**: Fuente única no oficial o estimació¡³¾n con incertidumbre
+- **`high`**: Múltiples fuentes coincidentes o fuente oficial directa
+- **`medium`**: Una fuente confiable o estimación razonable
+- **`low`**: Fuente única no oficial o estimación con incertidumbre
 
 ## Estructura de Archivos
 
 ### restaurants.csv / restaurants (hoja Excel)
 
-Informació¡³¾n de establecimientos gastronó¡³¡micos.
+Información de establecimientos gastronómicos.
 
 **Columnas principales**:
 - `restaurant_id`: Identificador único (ej. `REST-0001`)
 - `name`: Nombre comercial
 - `legal_name`: Nombre legal de la empresa
-- `category`: Categorí¡³a principal (cafeteria, fast_food, sushi, casual_dining, peruvian, italian, healthy)
-- `subcategory`: Subcategorí¡³a especí¡³fica
-- `on_campus`: Booleano - ¿está¡³ dentro del campus de ULima?
-- `location_reference`: Referencia de ubicació¡³¾n
-- `address`: Direcció¡³¾n completa
+- `category`: Categoría principal (cafeteria, fast_food, sushi, casual_dining, peruvian, italian, healthy)
+- `subcategory`: Subcategoría específica
+- `on_campus`: Booleano - ¿está dentro del campus de ULima?
+- `location_reference`: Referencia de ubicación
+- `address`: Dirección completa
 - `district`: Distrito
 - `latitude`, `longitude`: Coordenadas
-- `phone`: Telé¡³fono
+- `phone`: Teléfono
 - `website`: Sitio web oficial
 - `google_maps_url`: URL de Google Maps
 - `instagram_url`: Usuario de Instagram
@@ -108,44 +108,44 @@ Informació¡³¾n de establecimientos gastronó¡³¡micos.
 - `walking_route_url`: URL de ruta peatonal
 - `distance_confidence`: high, medium, low
 - `data_confidence`: high, medium, low
-- `verified_at`: Fecha de verificació¡³¾n (YYYY-MM-DD)
+- `verified_at`: Fecha de verificación (YYYY-MM-DD)
 - `source_1_url`, `source_2_url`: Fuentes consultadas
 - `notes`: Notas adicionales
 
 ### dishes.csv / dishes (hoja Excel)
 
-Informació¡³¾n de platos y productos a nivel individual.
+Información de platos y productos a nivel individual.
 
 **Columnas principales**:
 - `dish_id`: Identificador único (ej. `DISH-000001`)
 - `restaurant_id`: Referencia al restaurante
 - `name`: Nombre del plato
-- `description`: Descripció¡³¾n
-- `category`: Categorí¡³a (hamburguesa, pollo, menu_economico, snack, postre, cafe, bebida, desayuno, sandwich, chifa, sushi, etc.)
-- `subcategory`: Subcategorí¡³a
+- `description`: Descripción
+- `category`: Categoría (hamburguesa, pollo, menu_economico, snack, postre, cafe, bebida, desayuno, sandwich, chifa, sushi, etc.)
+- `subcategory`: Subcategoría
 - `price_pen`: Precio en soles peruanos
 - `delivery_price_pen`: Precio de delivery (si difiere)
-- `portion`: Tamaño/porció¡³¾n
-- `protein`: Proteí¡³na principal
+- `portion`: Tamaño/porción
+- `protein`: Proteína principal
 - `ingredients`: Ingredientes principales
 - `includes_drink`: Booleano - ¿incluye bebida?
-- `includes_side`: Booleano - ¿incluye acompaí¡³amiento?
+- `includes_side`: Booleano - ¿incluye acompaíamiento?
 - `includes_dessert`: Booleano - ¿incluye postre?
 - `vegetarian`: Booleano o null
 - `vegan`: Booleano o null
 - `gluten_free`: Booleano o null
-- `calories`: Calorí¡³as (solo si hay fuente)
+- `calories`: Calorías (solo si hay fuente)
 - `protein_g`, `carbs_g`, `fat_g`: Macros (solo si hay fuente)
 - `availability`: available, unavailable, seasonal
 - `price_confidence`: high, medium, low
 - `data_confidence`: high, medium, low
-- `verified_at`: Fecha de verificació¡³¾n
+- `verified_at`: Fecha de verificación
 - `source_url`: Fuente del precio
 - `notes`: Notas adicionales
 
 ### restaurant_tags.csv / restaurant_tags (hoja Excel)
 
-Etiquetas para restaurantes (bueno para grupos, econó¡³¡mico, saludable, etc.).
+Etiquetas para restaurantes (bueno para grupos, económico, saludable, etc.).
 
 **Columnas**:
 - `restaurant_id`: Referencia al restaurante
@@ -153,7 +153,7 @@ Etiquetas para restaurantes (bueno para grupos, econó¡³¡mico, saludable, etc
 
 ### dish_tags.csv / dish_tags (hoja Excel)
 
-Etiquetas para platos (econó¡³¡mico, alto_en_proteina, vegetariano, etc.).
+Etiquetas para platos (económico, alto_en_proteina, vegetariano, etc.).
 
 **Columnas**:
 - `dish_id`: Referencia al plato
@@ -170,7 +170,7 @@ Registro de fuentes consultadas para trazabilidad.
 - `source_type`: official_website, official_menu, official_social, google_maps, openstreetmap, delivery_platform, user_generated, other
 - `url`: URL de la fuente
 - `publisher`: Nombre del publisher
-- `title`: Tí¡³tulo o descripció¡³¾n
+- `title`: Título o descripción
 - `accessed_at`: Fecha de acceso
 - `notes`: Notas
 
@@ -183,31 +183,31 @@ Punto central de referencia del campus.
 - `name`: Nombre del punto de referencia
 - `latitude`: Latitud
 - `longitude`: Longitud
-- `address`: Direcció¡³¾n
-- `reference_definition`: Definició¡³¾n del punto
+- `address`: Dirección
+- `reference_definition`: Definición del punto
 - `source_url`: Fuente
-- `verified_at`: Fecha de verificació¡³¾n
+- `verified_at`: Fecha de verificación
 
 ### data_dictionary.csv / data_dictionary (hoja Excel)
 
-Diccionario de datos con descripció¡³¾n de cada campo.
+Diccionario de datos con descripción de cada campo.
 
 **Columnas**:
 - `field_name`: Nombre del campo
 - `table`: Tabla a la que pertenece
-- `description`: Descripció¡³¾n del campo
+- `description`: Descripción del campo
 - `data_type`: Tipo de dato (string, float, boolean, date)
 - `allowed_values`: Valores permitidos
 - `required`: ¿Es obligatorio? (true/false)
 - `example`: Ejemplo de valor
 
-## Resumen Estadí¡³stico
+## Resumen Estadístico
 
 ### Restaurantes/Establecimientos
 
 - **Total**: 20 establecimientos
 - **Dentro de ULima**: 18 establecimientos
-- **Fuera de ULima**: 2 establecimientos (Sushi Pop, Refugio Gastronó¡³¡mico)
+- **Fuera de ULima**: 2 establecimientos (Sushi Pop, Refugio Gastronómico)
 
 ### Platos
 
@@ -244,7 +244,7 @@ Los siguientes establecimientos mencionados en el documento "Distancia de restau
 - Gilligan
 - Salvavidas
 - Mounstro
-- La Cabaí¡³ita
+- La Cabaíita
 - Yopo
 - Panyp
 - Hermes Café
@@ -256,14 +256,14 @@ Los siguientes establecimientos mencionados en el documento "Distancia de restau
 - Cayetana (verificado parcialmente)
 - Jacinta y Cornelia (verificado parcialmente)
 
-**Nota**: Estos establecimientos aparecen en el documento inicial pero no hay evidencia web reciente suficiente para confirmar su existencia, ubicació¡³¾n exacta o estado actual. Se recomienda investigació¡³¾n adicional in situ.
+**Nota**: Estos establecimientos aparecen en el documento inicial pero no hay evidencia web reciente suficiente para confirmar su existencia, ubicación exacta o estado actual. Se recomienda investigación adicional in situ.
 
-## Cadenas con Menó¡º¡­ Verificado
+## Cadenas con Menú Verificado
 
 - **Bembos**: 20 platos verificados (hamburguesas, pollo, combos, promociones)
 - **Chinawok**: 17 platos verificados (chifa, combos, promociones)
-- **Starbucks**: 17 platos verificados (café¡³, bebidas, alimentos)
-- **Sushi Pop**: 11 platos verificados (sushi, poké¡³, combinados)
+- **Starbucks**: 17 platos verificados (café, bebidas, alimentos)
+- **Sushi Pop**: 11 platos verificados (sushi, poké, combinados)
 
 ## Porcentaje de Datos Verificados vs. Estimados
 
@@ -273,26 +273,26 @@ Los siguientes establecimientos mencionados en el documento "Distancia de restau
 
 ## Uso Recomendado
 
-Este dataset está diseí¡³ado para:
+Este dataset está diseíado para:
 
-1. **Plataformas de recomendació¡³¾n gastronó¡³¡mica** para estudiantes
+1. **Plataformas de recomendación gastronómica** para estudiantes
 2. **Apps de delivery** con foco universitario
-3. **Aná¡³lisis de precios y accesibilidad** de comida cerca de universidades
-4. **Investigació¡³¾n acadé¡³mica** sobre patrones de consumo estudiantil
-5. **Planificació¡³¾n de rutas peatonales** y accesibilidad
+3. **Análisis de precios y accesibilidad** de comida cerca de universidades
+4. **Investigación académica** sobre patrones de consumo estudiantil
+5. **Planificación de rutas peatonales** y accesibilidad
 
 ## Contacto y Actualizaciones
 
-Para reportar errores, sugerir correcciones o actualizar informació¡³¾n:
+Para reportar errores, sugerir correcciones o actualizar información:
 
-- Revisar fuentes oficiales periá¡³dicamente
+- Revisar fuentes oficiales periódicamente
 - Verificar precios en apps de delivery
 - Confirmar horarios directamente con los establecimientos
-- Actualizar `verified_at` con cada modificació¡³¾n
+- Actualizar `verified_at` con cada modificación
 
 ---
 
 **Generado**: 2026-09-05  
-**Versió¡³¾n**: 1.0  
-**Licencia**: Uso libre con atribució¡³¾n  
-**Autor**: Investigació¡³¾n web automatizada
+**Versión**: 1.0  
+**Licencia**: Uso libre con atribución  
+**Autor**: Investigación web automatizada

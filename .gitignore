@@ -1,23 +1,19 @@
-# C�digo previo usado solo como referencia
-scratch-existing-code/
-
-# Gentle / OpenCode local workspace config
-.config/
-
-# Secrets
-.env
-.env.*
-
-# Node
+# NUTRIA no usa node_modules: no hay build ni dependencias.
 node_modules/
-dist/
+package-lock.json
 
-# Python
-__pycache__/
-*.pyc
-.venv/
-venv/
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
 
-# IDE
+# Editores
 .vscode/
 .idea/
+*.swp
+
+# Exportaciones locales del historial (dato del estudiante, nunca al repo)
+nutria-export-*.json
+
+# Artefactos de descarga (las mismas imágenes ya están en racha-nutria/)
+racha-nutria-*.zip

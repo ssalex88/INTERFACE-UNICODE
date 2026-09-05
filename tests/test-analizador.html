@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="es-PE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NUTRIA · pruebas del analizador y del motor</title>
+  <style>
+    body { font: 15px/1.5 system-ui, sans-serif; margin: 0; padding: 1.5rem; background: #0d1413; color: #e8f0ef; }
+    h1 { margin: 0 0 .2rem; } h2 { margin: 1.4rem 0 .4rem; font-size: 1rem; color: #5eead4; }
+    .resumen { font-size: 1.05rem; font-weight: 700; padding: .7rem 1rem; border-radius: 10px; margin: .8rem 0 1rem; }
+    .verde { background: #052e16; color: #4ade80; } .rojo { background: #450a0a; color: #fca5a5; }
+    table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+    td, th { border-bottom: 1px solid #253634; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    .ok { color: #4ade80; font-weight: 700; } .fail { color: #fca5a5; font-weight: 700; }
+    code { background: #1d2a28; padding: .1rem .3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Pruebas de NUTRIA</h1>
+  <p>Cero dependencias: abre este archivo con un servidor local y las pruebas corren solas.</p>
+  <div id="resumen" class="resumen">Corriendo…</div>
+  <div id="salida"></div>
+
+  <script type="module">
+    import { analizarTexto, normalizar } from '../js/parser/analizador.js';
+    import { analizarPatrones, consolidarPorDia, calcularRacha } from '../js/motor/patrones.js';
+    import { proponerMeta, evaluarMeta, claveSemana } from '../js/motor/metas.js';
+    import { recomendar } from '../js/motor/recomendador.js';
+    import { calcularInsignias, nivelDeConstancia } from '../js/motor/insignias.js';
+    import { informeEstudiante, reporteInstitucional, bandaSueno, bandaPresupuesto } from '../js/motor/reporte.js';
+    import { diaLocal, nombreDesdeUsuario, iniciales } from '../js/datos/almacen.js';
+    import { ritmoDeHoy, momentoActual, senalesDelDia } from '../js/motor/ritmo.js';
+    import { construirDataset, derivarAporte, derivarAlergenos, parsearHorario } from '../js/datos/ulima.js';
+    import { leerCSV, aBooleano } from '../js/datos/csv.js';
+    import { runDietaryProfileTests } from './dietary-profile.test.js';
+    import { runParserTests } from './parser.test.js';
+    import { aprenderDeFrase, registrarFeedbackOpcion, calcularAfinidadAprendida, getLearnedPreferences } from '../src/preference-learner.js';
+    import { imagenRacha, infoNivelRacha } from '../js/ui/mascota.js';
+
+    const grupos = [];
+    let grupoActual = null;
+    let pasadas = 0, falladas = 0;
+
+    function describir(nombre, fn) { grupoActual = { nombre, casos: [] }; grupos.push(grupoActual); fn(); }
+    function probar(nombre, valor, esperado) {
+      const ok = JSON.stringify(valor) === JSON.stringify(esperado);
+      ok ? pasadas++ : falladas++;
+      grupoActual.casos.push({ nombre, ok, valor, esperado });
+    }
+    function probarQue(nombre, condicion, detalle = '') {
+      condicion ? pasadas++ : falladas++;
+      grupoActual.casos.push({ nombre, ok: !!condicion, valor: detalle, esperado: 'verdadero' });
+    }
+
+    // ---------------------------------------------------------------- Capa 1
+    describir('Normalización', () => {
+      probar('preserva longitud (índices intactos)', normalizar('Dormí 4 horas ñ').length, 'Dormí 4 horas ñ'.length);
+      probar('quita tildes y baja a minúsculas', normalizar('Almorcé Ají'), 'almorce aji');
+    });
+
+    describir('Presupuesto', () => {
+      probar('símbolo de sol', analizarTexto('me quedan S/12').presupuesto.monto, 12);
+      probar('símbolo con decimales', analizarTexto('tengo S/12.50 para el almuerzo').presupuesto.monto, 12.5);
+      probar('jerga: lucas', analizarTexto('ando con 8 lucas').presupuesto.monto, 8);
+      probar('número en palabras', analizarTexto('me quedan doce lucas').presupuesto.monto, 12);
+      probar('jerga: cocos', analizarTexto('tengo 15 cocos').presupuesto.monto, 15);
+      probar('sin plata', analizarTexto('estoy misio').presupuesto.monto, 0);
+      probar('no confunde horas con plata', analizarTexto('me quedan 4 horas de clase').presupuesto.monto, null);
+      probarQue('devuelve evidencia citable', !!analizarTexto('me quedan S/12').presupuesto.evidencia.texto, analizarTexto('me quedan S/12').presupuesto.evidencia.texto);
+    });
+
+    describir('Sueño', () => {
+      probar('horas explícitas', analizarTexto('dormí 4 horas').sueno.horas, 4);
+      probar('abreviado', analizarTexto('dormí 5h y me fui a clase').sueno.horas, 5);
+      probar('media hora', analizarTexto('dormí 6 y media').sueno.horas, 6.5);
+      probar('media hora después de la unidad', analizarTexto('dormí 7 horas y media').sueno.horas, 7.5);
+      probar('en palabras', analizarTexto('dormí cinco horas').sueno.horas, 5);
+      probar('cualitativo malo', analizarTexto('casi no dormí').sueno.calidad, 'mala');
+      probar('cualitativo bueno', analizarTexto('dormí bien').sueno.calidad, 'buena');
+      probar('no pegué el ojo', analizarTexto('no pegué el ojo anoche').sueno.horas, 2);
+      probar('jerga estudiantil: no he jateado', analizarTexto('no he jateado').sueno.horas, 2);
+      probar('jerga estudiantil: ni dormi', analizarTexto('ni dormi').sueno.horas, 2);
+      probar('rango horario', analizarTexto('me acosté a las 2 y me levanté a las 7').sueno.horas, 5);
+    });
+
+    describir('Comidas y negación', () => {
+      probar('almuerzo saltado', analizarTexto('no almorcé').comidas.almuerzo, 'saltada');
+      probar('salté el almuerzo', analizarTexto('salté el almuerzo por la entrega').comidas.almuerzo, 'saltada');
+      probar('almuerzo hecho', analizarTexto('almorcé un menú').comidas.almuerzo, 'hecha');
+      probar('la negación no se contagia tras coma', analizarTexto('no almorcé, cené tarde').comidas.cena, 'hecha');
+      probar('ni encadena la negación', analizarTexto('no almorcé ni cené').comidas.cena, 'saltada');
+      probar('desayuno saltado', analizarTexto('no desayuné y almorcé rápido').comidas.desayuno, 'saltada');
+      probar('desayuno saltado no arrastra almuerzo', analizarTexto('no desayuné y almorcé rápido').comidas.almuerzo, 'hecha');
+      probar('ayuno total', analizarTexto('no comí nada en todo el día').saltos, 3);
+      probar('sin tiempo de almorzar', analizarTexto('no me dio tiempo de almorzar').comidas.almuerzo, 'saltada');
+    });
+
+    describir('Ánimo, carga y platos', () => {
+      probar('estrés', analizarTexto('ando estresado').animo.etiqueta, 'estresado');
+      probar('niega el ánimo', analizarTexto('no estoy estresado, todo bien').animo.etiqueta, 'tranquilo');
+      probar('carga académica', analizarTexto('tengo entrega mañana').cargaAcademica.tipo, 'entrega');
+      probar('práctica calificada', analizarTexto('por la PC no dormí').cargaAcademica.tipo, 'practica');
+      probar('gazetteer de platos', analizarTexto('almorcé lomo saltado').platos[0].nombre, 'lomo saltado');
+      probar('señal de restricción', analizarTexto('no quiero comer, me da culpa').restriccion.detectada, true);
+    });
+
+    describir('Frase completa de la demo', () => {
+      const a = analizarTexto('dormí 4 horas, no almorcé, me quedan S/12 y tengo entrega mañana');
+      probar('sueño', a.sueno.horas, 4);
+      probar('almuerzo', a.comidas.almuerzo, 'saltada');
+      probar('presupuesto', a.presupuesto.monto, 12);
+      probar('carga', a.cargaAcademica.tipo, 'entrega');
+      probarQue('trazas suficientes para explicar', a.trazas.length >= 4, `${a.trazas.length} trazas`);
+      probarQue('tarda menos de 50 ms', a.ms < 50, `${a.ms} ms`);
+    });
+
+    // ------------------------------------------------------- Motor de patrones
+    const HOY = new Date('2026-09-05T20:00:00');
+    let contadorTest = 0;
+    function reg(hace, texto) {
+      const f = new Date(HOY); f.setDate(f.getDate() - hace); f.setHours(19, 0, 0, 0);
+      // diaLocal, no toISOString: el día del estudiante es local, no UTC.
+      return { id: `t${hace}_${contadorTest++}`, fecha: f.toISOString(), dia: diaLocal(f), texto, analisis: analizarTexto(texto), origen: 'test' };
+    }
+    const historial = [
+      reg(0, 'dormí 5 horas, no almorcé, tengo entrega, me quedan 10 soles'),
+      reg(1, 'dormí 4 horas, no almorcé por el parcial, ando con 8 lucas, estresado'),
+      reg(2, 'dormí 5 horas, almorcé menú, 12 soles'),
+      reg(3, 'dormí 4 horas, no almorcé, sustentación, 9 soles'),
+      reg(4, 'dormí 7 horas, almorcé menestrón, 11 soles, tranqui'),
+      reg(5, 'dormí 6 horas, desayuné avena, almorcé chaufa, 12 soles')
+    ];
+
+    describir('Ventanas móviles', () => {
+      const p = analizarPatrones(historial, HOY);
+      probar('días consolidados', p.dias.length, 6);
+      probar('ventana de 7 días cuenta 6', p.ventanas[7].diasConRegistro, 6);
+      probar('almuerzos saltados en 7 días', p.ventanas[7].saltosAlmuerzo, 3);
+      probar('noches cortas', p.ventanas[7].nochesCortas, 4);
+      probar('presupuesto mediano', p.ventanas[7].presupuestoMediana, 10.5);
+      probar('racha', p.racha.dias, 6);
+      probarQue('detecta el cruce salto/carga', p.patrones.some((x) => x.id === 'saltos_carga'), p.patrones.map((x) => x.id).join(','));
+      probarQue('detecta sueño corto', p.patrones.some((x) => x.id === 'sueno_corto'), '');
+      probarQue('todo patrón trae evidencia o es agregado', p.patrones.every((x) => Array.isArray(x.evidencia)), '');
+      probar('gamificación activa', p.gamificacionActiva, true);
+    });
+
+    describir('Contra-métrica de restricción', () => {
+      const conSenal = [...historial, reg(0, 'no quiero comer, me da culpa comer')];
+      const p = analizarPatrones(conSenal, HOY);
+      probar('se activa', p.restriccion.activa, true);
+      probar('apaga la gamificación', p.gamificacionActiva, false);
+      const meta = proponerMeta(p, HOY);
+      probar('la meta deja de ser de comida', meta.tipo, 'acompanamiento');
+      probar('y no es gamificable', meta.gamificable, false);
+    });
+
+    describir('Metas pequeñas', () => {
+      const p = analizarPatrones(historial, HOY);
+      const meta = proponerMeta(p, HOY);
+      probar('prioriza almuerzos', meta.tipo, 'almuerzos');
+      probarQue('es línea base + 1, no un salto', meta.objetivo <= 4, `objetivo ${meta.objetivo}`);
+      const progreso = evaluarMeta(meta, historial, HOY);
+      probarQue('mide progreso real', progreso.hechos >= 0 && progreso.objetivo === meta.objetivo, `${progreso.hechos}/${progreso.objetivo}`);
+      probarQue('clave de semana ISO', /^\d{4}-W\d{2}$/.test(claveSemana(HOY)), claveSemana(HOY));
+    });
+
+    // ---------------------------------------------------------- Recomendador
+    const DATASET = {
+      _meta: { estado: 'test' },
+      opciones: [
+        { id: 'a', plato: 'Menú del día', establecimiento: 'A', zona: 'z', precio: 10, categoria: 'menu_completo', etiquetas: ['caliente', 'contundente'], aporte: { proteina: 'alta', verdura: 'media' }, tiempo_cola_min: 10, caminando_min: 3, horario: { desde: '00:00', hasta: '23:59' }, dias: [1,2,3,4,5,6,7], vegetariano: false },
+        { id: 'b', plato: 'Salchipapa', establecimiento: 'B', zona: 'z', precio: 7, categoria: 'snack', etiquetas: ['frito', 'rapido'], aporte: { proteina: 'baja', verdura: 'baja' }, tiempo_cola_min: 4, caminando_min: 1, horario: { desde: '00:00', hasta: '23:59' }, dias: [1,2,3,4,5,6,7], vegetariano: false },
+        { id: 'm12', plato: 'Menú Administrativo', establecimiento: 'A', zona: 'z', precio: 12, categoria: 'menu_completo', etiquetas: ['caliente', 'contundente'], aporte: { proteina: 'alta', verdura: 'media' }, tiempo_cola_min: 10, caminando_min: 3, horario: { desde: '00:00', hasta: '23:59' }, dias: [1,2,3,4,5,6,7], vegetariano: false },
+        { id: 'c', plato: 'Pollo a la brasa', establecimiento: 'C', zona: 'z', precio: 25, categoria: 'plato_fuerte', etiquetas: ['contundente'], aporte: { proteina: 'alta', verdura: 'baja' }, tiempo_cola_min: 15, caminando_min: 12, horario: { desde: '00:00', hasta: '23:59' }, dias: [1,2,3,4,5,6,7], vegetariano: false },
+        { id: 'd', plato: 'Pollo al horno con ensalada', establecimiento: 'D', zona: 'z', precio: 17, categoria: 'plato_fuerte', etiquetas: ['caliente'], aporte: { proteina: 'alta', verdura: 'alta' }, tiempo_cola_min: 8, caminando_min: 4, horario: { desde: '00:00', hasta: '23:59' }, dias: [1,2,3,4,5,6,7], vegetariano: false },
+        { id: 'e', plato: 'Emoliente con pan', establecimiento: 'E', zona: 'z', precio: 4, categoria: 'desayuno', etiquetas: ['economico'], aporte: { proteina: 'baja', verdura: 'baja' }, tiempo_cola_min: 2, caminando_min: 1, horario: { desde: '00:00', hasta: '23:59' }, dias: [1,2,3,4,5,6,7], vegetariano: true }
+      ]
+    };
+    const PERFIL = { presupuestoTipico: 12, minutosDisponibles: 25, vegetariano: false };
+
+    describir('Recomendador', () => {
+      const p = analizarPatrones(historial, HOY);
+      const a = analizarTexto('dormí 4 horas, no almorcé, me quedan S/12');
+      const r = recomendar({ datasetMenus: DATASET, analisis: a, patrones: p, perfil: PERFIL, ahora: HOY });
+      probar('usa el presupuesto de la frase', r.presupuesto, 12);
+      probarQue('excluye lo que no entra en el presupuesto', !r.recomendaciones.some((x) => x.opcion.precio > 12), '');
+      probar('el menú caliente de S/12 gana con S/12 de presupuesto', r.recomendaciones[0].opcion.id, 'm12');
+      probarQue('cada recomendación explica su porqué', r.recomendaciones.every((x) => x.razones.length > 0), '');
+
+      const sinPlata = recomendar({ datasetMenus: DATASET, analisis: analizarTexto('estoy misio'), patrones: p, perfil: PERFIL, ahora: HOY });
+      probar('caso sin presupuesto', sinPlata.sinPresupuesto, true);
+      probarQue('igual ofrece lo más barato', sinPlata.recomendaciones.length > 0, '');
+    });
+
+    describir('Historial vacío (primer uso)', () => {
+      const p = analizarPatrones([], HOY);
+      probar('no revienta sin datos', p.dias.length, 0);
+      probar('racha en cero', p.racha.dias, 0);
+      const meta = proponerMeta(p, HOY);
+      probar('propone registrar', meta.tipo, 'registros');
+      const r = recomendar({ datasetMenus: DATASET, analisis: null, patrones: p, perfil: PERFIL, ahora: HOY });
+      probar('cae al presupuesto del perfil', r.presupuesto, 12);
+    });
+
+    describir('El presupuesto cambia la recomendación (regresión)', () => {
+      // El bug: con S/10 y con S/20 salía SIEMPRE el mismo plato, porque el
+      // presupuesto solo filtraba y el puntaje premiaba que sobrara plata.
+      const p = analizarPatrones([], HOY);
+      const conMonto = (monto) => recomendar({
+        datasetMenus: DATASET,
+        analisis: { presupuesto: { monto, evidencia: null, manual: true } },
+        patrones: p, perfil: PERFIL, ahora: HOY
+      });
+
+      const r5 = conMonto(5), r10 = conMonto(10), r12 = conMonto(12), r20 = conMonto(20);
+      probar('con S/5 gana lo único que entra', r5.recomendaciones[0].opcion.id, 'e');
+      probar('con S/10 gana el menú completo', r10.recomendaciones[0].opcion.id, 'a');
+      probar('con S/12 gana el menú adaptado a S/12', r12.recomendaciones[0].opcion.id, 'm12');
+      probar('con S/20 gana el plato con proteína y verdura', r20.recomendaciones[0].opcion.id, 'd');
+      probarQue('S/10 y S/20 ya no devuelven lo mismo',
+        r10.recomendaciones[0].opcion.id !== r20.recomendaciones[0].opcion.id,
+        `${r10.recomendaciones[0].opcion.id} vs ${r20.recomendaciones[0].opcion.id}`);
+      probarQue('nunca recomienda por encima del presupuesto',
+        [r5, r10, r12, r20].every((r) => r.recomendaciones.every((x) => x.opcion.precio <= r.presupuesto)), '');
+      probarQue('siempre ofrece la alternativa más barata cuando la hay',
+        r20.alternativaBarata && r20.alternativaBarata.opcion.precio < r20.recomendaciones[0].opcion.precio,
+        r20.alternativaBarata ? `S/${r20.alternativaBarata.opcion.precio}` : 'ninguna');
+      probarQue('avisa con cuánto más alcanzaría algo mejor',
+        conMonto(10).techoAlcanzado !== null, JSON.stringify(conMonto(10).techoAlcanzado));
+    });
+
+    describir('Momento del día', () => {
+      const p = analizarPatrones([], HOY);
+      const aLaHora = (hora) => recomendar({
+        datasetMenus: DATASET,
+        analisis: { presupuesto: { monto: 20, evidencia: null, manual: true } },
+        patrones: p, perfil: PERFIL, ahora: new Date(`2026-09-05T${hora}:00`)
+      });
+      probar('a las 8 am busca desayuno', aLaHora('08:00').franja, 'desayuno');
+      probar('a la 1 pm busca almuerzo', aLaHora('13:00').franja, 'almuerzo');
+      probar('a las 8 pm busca cena', aLaHora('20:00').franja, 'cena');
+      probarQue('el snack no gana a la hora de almuerzo',
+        aLaHora('13:00').recomendaciones[0].opcion.categoria !== 'desayuno',
+        aLaHora('13:00').recomendaciones[0].opcion.categoria);
+    });
+
+    describir('Insignias', () => {
+      const p = analizarPatrones(historial, HOY);
+      const insignias = calcularInsignias(p);
+      probarQue('se calculan de los registros, no están fijas', insignias.length > 0, `${insignias.length}`);
+      probarQue('todas traen progreso medible',
+        insignias.every((i) => Number.isFinite(i.hechos) && i.objetivo > 0), '');
+      probarQue('las obtenidas van primero',
+        insignias.findIndex((i) => !i.obtenida) === -1 || insignias.slice(0, insignias.findIndex((i) => !i.obtenida)).every((i) => i.obtenida), '');
+      probar('con 6 días seguidos la primera semana está conseguida',
+        insignias.find((i) => i.id === 'primera_semana').obtenida, true);
+
+      const conSenal = analizarPatrones([...historial, reg(0, 'no quiero comer, me da culpa comer')], HOY);
+      probar('la contra-métrica apaga TODAS las insignias', calcularInsignias(conSenal).length, 0);
+
+      const nivel = nivelDeConstancia(p);
+      probarQue('el nivel sale de la tasa de registro real', nivel.porcentaje >= 0 && nivel.porcentaje <= 100, `${nivel.porcentaje} %`);
+    });
+
+    describir('Informe del estudiante', () => {
+      const p = analizarPatrones(historial, HOY);
+      const inf = informeEstudiante(p, { metas: [], perfil: { campus: 'ULima' } }, HOY);
+      probarQue('trae un titular escrito', typeof inf.titular === 'string' && inf.titular.length > 0, inf.titular);
+      probar('cuatro indicadores legibles', inf.indicadores.length, 4);
+      probarQue('cada indicador se explica en palabras',
+        inf.indicadores.every((i) => typeof i.lectura === 'string' && i.lectura.length > 10), '');
+      probarQue('sin mes anterior no inventa comparación',
+        inf.indicadores.every((i) => i.cambio === null), JSON.stringify(inf.indicadores.map((i) => i.cambio)));
+      probarQue('sugiere como máximo 3 cosas', inf.sugerencias.length <= 3, `${inf.sugerencias.length}`);
+    });
+
+    describir('Reporte a la universidad', () => {
+      const p = analizarPatrones(historial, HOY);
+      const perfil = { campus: 'Universidad de Lima', facultad: 'Ing. Industrial' };
+      const anon = reporteInstitucional(p, { consentimiento: { agregado: true, nominal: false }, sesion: { nombre: 'Camila Rojas', usuario: 'c.rojas' }, perfil }, HOY);
+      const nominal = reporteInstitucional(p, { consentimiento: { agregado: true, nominal: true }, sesion: { nombre: 'Camila Rojas', usuario: 'c.rojas' }, perfil }, HOY);
+
+      probar('por defecto es anónimo', anon.modo, 'anonimo');
+      probarQue('el modo anónimo no lleva nombre ni código',
+        !anon.identificacion.nombre && !anon.identificacion.codigo, JSON.stringify(anon.identificacion));
+      probar('con permiso explícito lleva nombre', nominal.identificacion.nombre, 'Camila Rojas');
+
+      const serializado = JSON.stringify(anon);
+      probarQue('nunca viaja una frase del estudiante',
+        !historial.some((r) => serializado.includes(r.texto)), '');
+      probarQue('nunca viaja un plato',
+        !serializado.includes('menestrón') && !serializado.includes('chaufa'), '');
+      probarQue('el dinero viaja en rango, no en cifra exacta',
+        /S\//.test(anon.indicadores.bandaPresupuesto) && !Object.values(anon.indicadores).includes(10.5), anon.indicadores.bandaPresupuesto);
+      probar('el sueño viaja en banda', bandaSueno(5.4), '5 a 6 h');
+      probar('el presupuesto viaja en banda', bandaPresupuesto(12), 'S/11 a S/15');
+
+      const sinPermiso = reporteInstitucional(p, { consentimiento: { agregado: false, nominal: false }, sesion: null, perfil }, HOY);
+      probar('sin ningún permiso no es enviable', sinPermiso.enviable, false);
+
+      const conSenal = analizarPatrones([...historial, reg(0, 'no quiero comer, me da culpa comer')], HOY);
+      const conAlerta = reporteInstitucional(conSenal, { consentimiento: { agregado: true }, sesion: null, perfil }, HOY);
+      probarQue('la señal de restricción NO se envía a la universidad',
+        !JSON.stringify(conAlerta.indicadores).toLowerCase().includes('restric'), JSON.stringify(conAlerta.indicadores));
+    });
+
+    describir('Sesión', () => {
+      probar('un correo se vuelve nombre', nombreDesdeUsuario('camila.rojas@aloe.ulima.edu.pe'), 'Camila Rojas');
+      probar('un código de alumno no es un nombre', nombreDesdeUsuario('20231234@aloe.ulima.edu.pe'), 'Estudiante');
+      probar('iniciales para el avatar', iniciales('Camila Rojas'), 'CR');
+    });
+
+    // ------------------------------------------------ HU-01, HU-02, HU-04
+    describir('HU-01, HU-02, HU-04: Perfil Alimentario y Alérgenos', () => {
+      runDietaryProfileTests((nombre, ok, valor, esperado) => {
+        ok ? pasadas++ : falladas++;
+        grupoActual.casos.push({ nombre, ok, valor, esperado });
+      });
+    });
+
+    // ------------------------------------------------ HU-03
+    describir('HU-03: Tiempo Disponible y Margen Académico', () => {
+      runParserTests((nombre, ok, valor, esperado) => {
+        ok ? pasadas++ : falladas++;
+        grupoActual.casos.push({ nombre, ok, valor, esperado });
+      });
+    });
+
+    describir('Recomendador con Alérgenos y Margen de Tiempo (Integración)', () => {
+      const p = analizarPatrones([], HOY);
+      const perfilConAlergia = {
+        alergias_conocidas: ['mani'],
+        intolerancias_conocidas: [],
+        alimentos_evitados: [],
+        preferencias_alimentarias: [],
+        restricciones_profesionales: []
+      };
+      const datasetConAlergia = {
+        _meta: { estado: 'test' },
+        opciones: [
+          { id: 'mani1', plato: 'Tallarines con salsa de maní', establecimiento: 'A', zona: 'Campus', precio: 10, alergenos_presentes: ['mani'], categoria: 'menu_completo', horario: { desde: '00:00', hasta: '23:59' }, dias: [1,2,3,4,5,6,7], vegetariano: true },
+          { id: 'ok1', plato: 'Arroz con verduras', establecimiento: 'B', zona: 'Campus', precio: 10, alergenos_presentes: [], categoria: 'menu_completo', horario: { desde: '00:00', hasta: '23:59' }, dias: [1,2,3,4,5,6,7], vegetariano: true }
+        ]
+      };
+      const rAlergia = recomendar({
+        datasetMenus: datasetConAlergia,
+        analisis: null,
+        patrones: p,
+        perfil: PERFIL,
+        perfilDietario: perfilConAlergia,
+        ahora: HOY
+      });
+      probar('descarta plato con maní cuando hay alergia declarada', rAlergia.recomendaciones.some(x => x.opcion.id === 'mani1'), false);
+      probar('recomienda el plato compatible', rAlergia.recomendaciones[0]?.opcion.id, 'ok1');
+
+      // Prueba de deducción de tiempo y buffer
+      const aTiempo = analizarTexto('tengo parcial en 40 minutos, me quedan S/10');
+      probar('analizador detecta tiempo disponible', aTiempo.tiempoDisponible?.disponible, true);
+      probar('analizador descuenta buffer de 15 min por examen/parcial', aTiempo.tiempoDisponible?.deduccionBufferMin, 15);
+      probar('minutos netos calculados (40 - 15 = 25)', aTiempo.tiempoDisponible?.minutosNetos, 25);
+
+      const rTiempo = recomendar({
+        datasetMenus: DATASET,
+        analisis: aTiempo,
+        patrones: p,
+        perfil: PERFIL,
+        ahora: HOY
+      });
+      probarQue('recomendador recibe tiempo disponible y margen', rTiempo.tiempoDisponible?.minutosNetos === 25, '');
+    });
+
+    // ------------------------------------------------------- Ritmo de uso
+    describir('Ritmo de uso (cuándo se registra)', () => {
+      const aLas = (h, m = 0) => { const f = new Date(HOY); f.setHours(h, m, 0, 0); return f; };
+
+      probar('a las 7 a.m. es la mañana', momentoActual(aLas(7)).id, 'manana');
+      probar('a la 1 p.m. es el mediodía', momentoActual(aLas(13)).id, 'mediodia');
+      probar('a las 9 p.m. es la noche', momentoActual(aLas(21)).id, 'noche');
+      probar('la madrugada sigue siendo la noche del día que terminó', momentoActual(aLas(2)).id, 'noche');
+
+      // Sin registros de hoy, el día está vacío en cualquier momento.
+      const vacio = ritmoDeHoy([], aLas(13));
+      probar('sin registros el estado es vacío', vacio.estado, 'vacio');
+      probarQue('ninguna señal capturada', vacio.senales.every((s) => !s.capturada), '');
+      probarQue('ofrece atajos del momento', vacio.atajos.length > 0, `${vacio.atajos.length}`);
+
+      // Un registro de hoy llena las señales que la frase menciona.
+      const conDatos = ritmoDeHoy([reg(0, 'dormí 5 horas, no almorcé, me quedan 10 soles')], aLas(13));
+      const capturada = (id) => conDatos.senales.find((s) => s.id === id).capturada;
+      probar('captura el sueño de la frase', capturada('sueno'), true);
+      probar('captura el almuerzo aunque haya sido saltado', capturada('almuerzo'), true);
+      probar('captura el presupuesto', capturada('presupuesto'), true);
+      probar('no inventa la cena', capturada('cena'), false);
+      probar('al mediodía, con el almuerzo dicho, ya está al día', conDatos.estado, 'al_dia');
+
+      // Regla dura: registrar tres veces en un día NO son tres días.
+      const tresVeces = [reg(0, 'dormí 5 horas'), reg(0, 'no almorcé'), reg(0, 'me quedan 10 soles')];
+      probar('tres registros del mismo día son un solo día', analizarPatrones(tresVeces, HOY).dias.length, 1);
+      probar('y una sola racha de un día', analizarPatrones(tresVeces, HOY).racha.dias, 1);
+      probar('pero el ritmo los cuenta todos', senalesDelDia(tresVeces, HOY).registros, 3);
+      probarQue('y consolida las tres señales',
+        ['sueno', 'almuerzo', 'presupuesto'].every((s) => ritmoDeHoy(tresVeces, aLas(13)).senales.find((x) => x.id === s).capturada), '');
+
+      // El marcador de la barra arranca a las 05:00, no a medianoche.
+      probarQue('el marcador del día empieza en la mañana',
+        ritmoDeHoy([], aLas(5)).avanceDelDia < 0.01, `${ritmoDeHoy([], aLas(5)).avanceDelDia}`);
+      probarQue('la barra cubre las 24 horas',
+        ritmoDeHoy([], aLas(4, 59)).avanceDelDia > 0.99, `${ritmoDeHoy([], aLas(4, 59)).avanceDelDia}`);
+      probarQue('los tres tramos suman el día completo',
+        Math.abs(ritmoDeHoy([], aLas(13)).momentos.reduce((a, m) => a + m.peso, 0) - 1) < 0.01, '');
+    });
+
+    // --------------------------------------- Levantamiento real -> motor
+    describir('Levantamiento del campus (dataset/)', () => {
+      probar('lee una celda entrecomillada con comas', leerCSV('a,b\n1,"x, y"')[0].b, 'x, y');
+      probar('lee comillas escapadas', leerCSV('a\n"di ""hola"""')[0].a, 'di "hola"');
+      // La regla de calidad del dataset: vacío es DESCONOCIDO, no "false".
+      probar('celda vacía es desconocido, no falso', aBooleano(''), null);
+      probar('False es falso de verdad', aBooleano('False'), false);
+
+      probar('parsea "Lun-Dom: 07:00-22:00"', parsearHorario('Lun-Dom: 07:00-22:00').horario, { desde: '07:00', hasta: '22:00' });
+      probar('y sus siete días', parsearHorario('Lun-Dom: 07:00-22:00').dias, [1, 2, 3, 4, 5, 6, 7]);
+      probar('medianoche es fin del día, no cierre antes de abrir',
+        parsearHorario('Lun-Dom: 12:00-00:00').horario.hasta, '23:59');
+      probar('un horario ilegible no se inventa', parsearHorario('consultar en el local'), null);
+
+      // Derivación del aporte: auditable, no "a ojo".
+      const pechugon = derivarAporte({ nombre: 'Menú Pechugón', ingredientes: 'pollo a la parrilla, papas fritas, arroz, ensalada', proteina: 'pollo', categoria: 'menu_completo' });
+      probar('proteína alta en un plato con pollo', pechugon.aporte.proteina, 'alta');
+      probar('verdura alta cuando la ensalada es parte del plato', pechugon.aporte.verdura, 'alta');
+      probarQue('cada valor cita el ingrediente que lo justifica',
+        pechugon.derivacion.proteina.cita === 'pollo' && pechugon.derivacion.verdura.cita === 'ensalada',
+        JSON.stringify(pechugon.derivacion));
+
+      // Regresión: la lechuga y el tomate de una hamburguesa no son una ensalada.
+      const burger = derivarAporte({ nombre: 'Hamburguesa Cheese', ingredientes: 'carne a la parrilla, queso, lechuga, tomate, mayonesa', proteina: 'carne de res', categoria: 'plato_fuerte' });
+      probar('el adorno del pan no cuenta como verdura alta', burger.aporte.verdura, 'media');
+
+      // Regresión: buscar por subcadena hacía que un "espresso" tuviera "res".
+      const latte = derivarAporte({ nombre: 'Latte', ingredientes: 'espresso, leche vaporizada', proteina: '', categoria: 'bebida' });
+      probar('un espresso no tiene proteína animal', latte.aporte.proteina, 'baja');
+
+      // Alérgenos: se afirma la presencia, nunca la ausencia (HU-04).
+      const croissant = derivarAlergenos({ nombre: 'Croissant de Mantequilla', ingredientes: 'harina, mantequilla', descripcion: '' });
+      probarQue('detecta gluten y lactosa declarados',
+        croissant.presentes.includes('gluten') && croissant.presentes.includes('lactosa'), croissant.presentes.join(','));
+      probar('NUNCA declara un alérgeno como ausente verificado', croissant.ausentes_verificados.length, 0);
+      probarQue('lo no detectado viaja como no verificado',
+        croissant.no_verificados.includes('mani'), croissant.no_verificados.join(','));
+
+      // Transformación completa, con las dos tablas.
+      const csvRest = 'restaurant_id,name,category,on_campus,location_reference,opening_hours,walking_time_min,data_confidence,verified_at\n'
+        + 'REST-0001,Bembos,fast_food,True,Dentro del campus ULima - Food Court,Lun-Dom: 10:00-23:00,3,high,2026-09-05\n';
+      const csvPlatos = 'dish_id,restaurant_id,name,description,category,subcategory,price_pen,protein,ingredients,includes_side,vegetarian,availability,price_confidence,verified_at,source_url\n'
+        + 'DISH-000013,REST-0001,Menú Pechugón,,menu_economico,menu_completo,17.9,pollo,"pollo a la parrilla, papas fritas, arroz, ensalada",True,False,available,high,2026-09-05,https://ejemplo\n'
+        + 'DISH-000099,REST-9999,Plato huérfano,,snack,snack,5,,,,,available,high,2026-09-05,\n';
+      const ds = construirDataset(csvRest, csvPlatos);
+
+      probar('un plato sin establecimiento se descarta, no se inventa', ds.opciones.length, 1);
+      const o = ds.opciones[0];
+      probar('el plato hereda la zona del local', o.zona, 'Campus · Food Court');
+      probar('y sus minutos a pie', o.caminando_min, 3);
+      probar('y su horario', o.horario, { desde: '10:00', hasta: '23:00' });
+      probar('la cola queda DESCONOCIDA, no en cero', o.tiempo_cola_min, null);
+      probar('menú económico entra al vocabulario del motor', o.categoria, 'menu_completo');
+      probarQue('trae la derivación del aporte para poder auditarla',
+        !!(o.aporte_derivacion && o.aporte_derivacion.proteina.regla), JSON.stringify(o.aporte_derivacion || {}));
+      probarQue('cita su fuente y su fecha',
+        !!o.fuente_url && o.fecha_actualizacion === '2026-09-05', `${o.fuente_url} ${o.fecha_actualizacion}`);
+      probar('el local se cuenta aunque el mapa sea chico', ds.establecimientos.length, 1);
+      probar('y sabe cuántos platos tiene levantados', ds.establecimientos[0].platos, 1);
+
+      // El motor tiene que sobrevivir a la cola desconocida.
+      const rSinCola = recomendar({
+        datasetMenus: ds,
+        analisis: { presupuesto: { monto: 20, evidencia: null, manual: true } },
+        patrones: analizarPatrones([], HOY),
+        perfil: PERFIL,
+        ahora: new Date('2026-09-07T13:00:00')
+      });
+      probar('recomienda igual sin tiempo de cola medido', rSinCola.recomendaciones.length, 1);
+      probarQue('ninguna razón habla de una cola inventada',
+        !rSinCola.recomendaciones[0].razones.some((r) => /cola ~?\d/.test(r)),
+        rSinCola.recomendaciones[0].razones.join(' | '));
+    });
+
+    describir('Machine Learning de Preferencias (en dispositivo)', () => {
+      localStorage.clear();
+      const aprendido = aprenderDeFrase('hoy al final terminé almorzando hamburguesa de bembos');
+      probarQue('aprende de frase con consumo', aprendido !== null && aprendido.categoria === 'hamburguesa');
+
+      const prefs = getLearnedPreferences();
+      probarQue('guarda establecimiento REST-0002 en prefs', prefs.establecimientos['REST-0002'] > 0);
+      probarQue('guarda categoria hamburguesa en prefs', prefs.categorias['hamburguesa'] > 0);
+
+      const afinidadBembos = calcularAfinidadAprendida({ id: 'b1', establecimiento_id: 'REST-0002', categoria: 'hamburguesa', establecimiento: 'Bembos' });
+      probarQue('bono de afinidad positivo para Bembos', afinidadBembos.bonus > 0);
+      probarQue('razon explicable presente', typeof afinidadBembos.razon === 'string' && afinidadBembos.razon.length > 0);
+
+      registrarFeedbackOpcion({ id: 'a', establecimiento_id: 'REST-0015', categoria: 'menu_completo', establecimiento: 'Alessar F2' }, 'segui');
+      const afinidadAlessar = calcularAfinidadAprendida({ id: 'a', establecimiento_id: 'REST-0015', categoria: 'menu_completo', establecimiento: 'Alessar F2' });
+      probarQue('bono de afinidad positivo tras feedback "La seguí"', afinidadAlessar.bonus > 0);
+    });
+
+    describir('Diversidad de Recomendaciones y Deduplicación', () => {
+      const DATASET_VAR = {
+        _meta: { estado: 'test' },
+        opciones: [
+          { id: 'v1', plato: 'Tallarín Taypá', establecimiento: 'Chinawok', establecimiento_id: 'REST-0003', zona: 'z', precio: 15, categoria: 'chifa', etiquetas: ['caliente'], aporte: { proteina: 'alta', verdura: 'media' }, tiempo_cola_min: 5, caminando_min: 2, horario: { desde: '00:00', hasta: '23:59' }, dias: [1,2,3,4,5,6,7], vegetariano: false, alergenos_presentes: [] },
+          { id: 'v2', plato: 'Combo Tallarín Taypá', establecimiento: 'Chinawok', establecimiento_id: 'REST-0003', zona: 'z', precio: 16, categoria: 'chifa', etiquetas: ['caliente'], aporte: { proteina: 'alta', verdura: 'media' }, tiempo_cola_min: 5, caminando_min: 2, horario: { desde: '00:00', hasta: '23:59' }, dias: [1,2,3,4,5,6,7], vegetariano: false, alergenos_presentes: [] },
+          { id: 'v3', plato: 'Arroz Chaufa de Pollo', establecimiento: 'Chinawok', establecimiento_id: 'REST-0003', zona: 'z', precio: 14, categoria: 'chifa', etiquetas: ['caliente'], aporte: { proteina: 'alta', verdura: 'media' }, tiempo_cola_min: 5, caminando_min: 2, horario: { desde: '00:00', hasta: '23:59' }, dias: [1,2,3,4,5,6,7], vegetariano: false, alergenos_presentes: [] },
+          { id: 'v4', plato: 'Menú Universitario', establecimiento: 'Alessar F2', establecimiento_id: 'REST-0015', zona: 'z', precio: 10, categoria: 'menu_completo', etiquetas: ['caliente'], aporte: { proteina: 'alta', verdura: 'media' }, tiempo_cola_min: 5, caminando_min: 2, horario: { desde: '00:00', hasta: '23:59' }, dias: [1,2,3,4,5,6,7], vegetariano: false, alergenos_presentes: [] }
+        ]
+      };
+      const rVar = recomendar({
+        datasetMenus: DATASET_VAR,
+        analisis: { presupuesto: { monto: 18, evidencia: null, manual: true } },
+        patrones: analizarPatrones([], HOY),
+        perfil: PERFIL,
+        ahora: HOY
+      });
+      const platos = rVar.recomendaciones.map(r => r.opcion.plato);
+      probarQue('no repite variante Combo Tallarín Taypá cuando ya está Tallarín Taypá', !(platos.includes('Tallarín Taypá') && platos.includes('Combo Tallarín Taypá')));
+    });
+
+    describir('Registro Continuo y Consolidación Temporal', () => {
+      const r1 = {
+        id: 'reg1', dia: '2026-09-05', fecha: '2026-09-05T10:00:00.000Z',
+        texto: 'desayuné hoy, dormí 3h, tengo 12 soles',
+        analisis: analizarTexto('desayuné hoy, dormí 3h, tengo 12 soles')
+      };
+      const r2 = {
+        id: 'reg2', dia: '2026-09-05', fecha: '2026-09-05T12:00:00.000Z',
+        texto: 'no almorcé',
+        analisis: analizarTexto('no almorcé')
+      };
+      const r3 = {
+        id: 'reg3', dia: '2026-09-05', fecha: '2026-09-05T15:00:00.000Z',
+        texto: 'ya almorcé',
+        analisis: analizarTexto('ya almorcé')
+      };
+
+      const c1 = consolidarPorDia([r1])[0];
+      probar('10am: sueño 3h', c1.sueno, 3);
+      probar('10am: presupuesto 12 soles', c1.presupuesto, 12);
+      probar('10am: desayuno hecho', c1.comidas.desayuno, 'hecha');
+
+      const c2 = consolidarPorDia([r1, r2])[0];
+      probar('12pm: preserva sueño 3h', c2.sueno, 3);
+      probar('12pm: preserva presupuesto 12 soles', c2.presupuesto, 12);
+      probar('12pm: almuerzo saltado', c2.comidas.almuerzo, 'saltada');
+
+      const c3 = consolidarPorDia([r1, r2, r3])[0];
+      probar('3pm: preserva sueño 3h', c3.sueno, 3);
+      probar('3pm: preserva presupuesto 12 soles', c3.presupuesto, 12);
+      probar('3pm: actualiza almuerzo a hecho (supera a saltado)', c3.comidas.almuerzo, 'hecha');
+    });
+
+    describir('Ilustraciones de Racha (Nutri)', () => {
+      probar('0 días de racha -> Nutria1.png', imagenRacha(0), './racha-nutria/Nutria1.png');
+      probar('3 días de racha -> Nutria1.png', imagenRacha(3), './racha-nutria/Nutria1.png');
+      probar('5 días de racha -> Nutria1.png', imagenRacha(5), './racha-nutria/Nutria1.png');
+      probar('6 días de racha -> Nutria2.png', imagenRacha(6), './racha-nutria/Nutria2.png');
+      probar('10 días de racha -> Nutria2.png', imagenRacha(10), './racha-nutria/Nutria2.png');
+      probar('12 días de racha -> Nutria3.png', imagenRacha(12), './racha-nutria/Nutria3.png');
+      probar('15 días de racha -> Nutria3.png', imagenRacha(15), './racha-nutria/Nutria3.png');
+      probar('18 días de racha -> Nutria4.png', imagenRacha(18), './racha-nutria/Nutria4.png');
+      probar('20 días de racha -> Nutria4.png', imagenRacha(20), './racha-nutria/Nutria4.png');
+      probar('21 días de racha -> Nutria5.png (Hábito formado)', imagenRacha(21), './racha-nutria/Nutria5.png');
+      probar('30 días de racha -> Nutria5.png', imagenRacha(30), './racha-nutria/Nutria5.png');
+      probar('nivel de racha para 21 días es Nutri Maestra', infoNivelRacha(21).nivel, 5);
+    });
+
+    // ----------------------------------------------------------------- Salida
+    const salida = document.getElementById('salida');
+    salida.innerHTML = grupos.map((g) => `
+      <h2>${g.nombre}</h2>
+      <table><tbody>${g.casos.map((c) => `
+        <tr>
+          <td class="${c.ok ? 'ok' : 'fail'}">${c.ok ? 'PASA' : 'FALLA'}</td>
+          <td>${c.nombre}</td>
+          <td>${c.ok ? '' : `obtenido <code>${JSON.stringify(c.valor)}</code> · esperado <code>${JSON.stringify(c.esperado)}</code>`}</td>
+        </tr>`).join('')}</tbody></table>`).join('');
+
+    const resumen = document.getElementById('resumen');
+    resumen.textContent = `${pasadas} pasan · ${falladas} fallan`;
+    resumen.className = `resumen ${falladas === 0 ? 'verde' : 'rojo'}`;
+    console.log(`[NUTRIA tests] ${pasadas} pasan, ${falladas} fallan`);
+    window.__resultados = { pasadas, falladas, grupos };
+  </script>
+</body>
+</html>

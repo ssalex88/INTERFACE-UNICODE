@@ -2,28 +2,28 @@ field_name,table,description,data_type,allowed_values,required,example
 restaurant_id,restaurants,Identificador único del restaurante,string,"REST-0001, REST-0002, ...",True,REST-0001
 name,restaurants,Nombre comercial del restaurante,string,cualquier texto,True,Starbucks Universidad de Lima
 legal_name,restaurants,Nombre legal de la empresa (si está disponible),string,cualquier texto o null,False,Starbucks Coffee Perú S.R.L.
-category,restaurants,Categorí¡³a principal del restaurante,string,"cafeteria, fast_food, sushi, casual_dining, peruvian, italian, healthy",True,cafeteria
-subcategory,restaurants,Subcategorí¡³a específica del tipo de comida,string,"coffee_shop, hamburguesas, chifa, sushi_bar, american, criolla, pasta, pollo_frito, ensaladas, sandwiches",False,coffee_shop
+category,restaurants,Categoría principal del restaurante,string,"cafeteria, fast_food, sushi, casual_dining, peruvian, italian, healthy",True,cafeteria
+subcategory,restaurants,Subcategoría específica del tipo de comida,string,"coffee_shop, hamburguesas, chifa, sushi_bar, american, criolla, pasta, pollo_frito, ensaladas, sandwiches",False,coffee_shop
 on_campus,restaurants,Indica si el restaurante está dentro del campus de ULima,boolean,"true, false",True,True
 location_reference,restaurants,Referencia de ubicación dentro o cerca del campus,string,cualquier texto o null,False,Dentro del campus ULima - Edificio A1
-address,restaurants,Direcció¡³¾n completa del establecimiento,string,cualquier texto,True,"Av. Javier Prado Este 4600, Santiago de Surco"
+address,restaurants,Dirección completa del establecimiento,string,cualquier texto,True,"Av. Javier Prado Este 4600, Santiago de Surco"
 district,restaurants,Distrito donde se ubica el restaurante,string,cualquier texto,True,Santiago de Surco
 latitude,restaurants,Coordenada de latitud,float,coordenadas válidas,False,-12.0775
 longitude,restaurants,Coordenada de longitud,float,coordenadas válidas,False,-76.9886
-phone,restaurants,Telé¡³fono de contacto,string,cualquier texto o null,False,+51 1 702 6000
+phone,restaurants,Teléfono de contacto,string,cualquier texto o null,False,+51 1 702 6000
 website,restaurants,Sitio web oficial,string,cualquier texto o null,False,https://www.starbucks.pe/
 google_maps_url,restaurants,URL de Google Maps,string,cualquier texto o null,False,https://maps.google.com/?q=Starbucks
 instagram_url,restaurants,Usuario de Instagram,string,cualquier texto o null,False,@starbuckspe
 opening_hours,restaurants,Horarios de atención,string,cualquier texto o null,False,Lun-Dom: 07:00-22:00
 current_status,restaurants,"Estado actual: open, closed, temporalmente_closed",string,"open, closed, temporalmente_closed",True,open
-distance_m_walk,restaurants,Distancia aproximada caminando en metros,float,nó¡º¡­mero positivo o null,False,150
-walking_time_min,restaurants,Tiempo estimado caminando en minutos,float,nó¡º¡­mero positivo o null,False,2
+distance_m_walk,restaurants,Distancia aproximada caminando en metros,float,número positivo o null,False,150
+walking_time_min,restaurants,Tiempo estimado caminando en minutos,float,número positivo o null,False,2
 distance_bucket,restaurants,"Rango de distancia: on_campus, 0_5_min, 5_10_min, 10_15_min, 15_20_min, 20_plus_min",string,"on_campus, 0_5_min, 5_10_min, 10_15_min, 15_20_min, 20_plus_min",True,on_campus
 walking_distance_source,restaurants,"Fuente de la distancia: google_maps, estimated, inferred",string,"google_maps, estimated, inferred, unknown",False,estimated
 walking_route_url,restaurants,URL de la ruta peatonal en Google Maps,string,URL o null,False,https://maps.google.com/?q=walking+route
 distance_confidence,restaurants,"Nivel de confianza de la distancia: high, medium, low",string,"high, medium, low",True,medium
 data_confidence,restaurants,"Nivel de confianza general de los datos: high, medium, low",string,"high, medium, low",True,high
-verified_at,restaurants,Fecha de verificació¡³¾n de los datos,date,YYYY-MM-DD,True,2026-09-05
+verified_at,restaurants,Fecha de verificación de los datos,date,YYYY-MM-DD,True,2026-09-05
 source_1_url,restaurants,URL de la primera fuente,string,URL o null,False,https://exynia.com/precios-menu-starbucks-peru/
 source_2_url,restaurants,URL de la segunda fuente,string,URL o null,False,https://www.ulima.edu.pe/
 notes,restaurants,Notas adicionales,string,cualquier texto o null,False,Dentro del campus - Edificio A1. Dos ubicaciones en campus.

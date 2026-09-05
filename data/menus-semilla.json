@@ -1,0 +1,1090 @@
+{
+  "_meta": {
+    "version": "0.1.0",
+    "campus": "Universidad de Lima — Surco (Javier Prado Este / Manuel Olguín / Puerta 3)",
+    "moneda": "PEN",
+    "actualizado": "2026-09-05",
+    "estado": "SEMILLA DE TRABAJO. Los nombres de establecimiento, precios y horarios son sintéticos y sirven para probar el motor de recomendación. Antes del piloto deben reemplazarse por el levantamiento de campo real (ver docs/DATASET.md).",
+    "campos": {
+      "precio": "soles, precio del plato tal como se cobra en ventanilla",
+      "tiempo_cola_min": "minutos promedio de espera en hora punta",
+      "caminando_min": "minutos a pie desde la puerta de la facultad",
+      "aporte": "descripcion cualitativa. NUNCA calorias ni macros: decision de producto, Bloque 3 de la propuesta",
+      "dias": "1=lunes ... 7=domingo"
+    }
+  },
+  "opciones": [
+    {
+      "id": "m01",
+      "plato": "Menú del día: sopa + arroz con pollo",
+      "establecimiento": "Menú Doña Rosa",
+      "zona": "Manuel Olguín, 2 cuadras",
+      "precio": 10,
+      "categoria": "menu_completo",
+      "etiquetas": [
+        "caliente",
+        "contundente",
+        "proteina_animal",
+        "sopa"
+      ],
+      "aporte": {
+        "proteina": "alta",
+        "verdura": "media",
+        "carbohidrato": "alta"
+      },
+      "tiempo_cola_min": 12,
+      "caminando_min": 4,
+      "horario": {
+        "desde": "12:00",
+        "hasta": "15:30"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "vegetariano": false,
+      "notas": "Incluye refresco. Entrada rota cada día.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [
+        "gluten"
+      ],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani"
+      ],
+      "procedencia_dato": "Declaración del establecimiento",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m02",
+      "plato": "Menú económico: menestra con arroz y guiso",
+      "establecimiento": "Comedor El Paradero",
+      "zona": "Paradero Javier Prado",
+      "precio": 8,
+      "categoria": "menu_completo",
+      "etiquetas": [
+        "caliente",
+        "contundente",
+        "menestra",
+        "economico"
+      ],
+      "aporte": {
+        "proteina": "media",
+        "verdura": "media",
+        "carbohidrato": "alta"
+      },
+      "tiempo_cola_min": 15,
+      "caminando_min": 7,
+      "horario": {
+        "desde": "11:30",
+        "hasta": "16:00"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "vegetariano": false,
+      "notas": "La opción más barata con plato de fondo. Cola larga a la 1 p.m.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani",
+        "gluten"
+      ],
+      "procedencia_dato": "Relevamiento de campo LEAD",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m03",
+      "plato": "Tallarín saltado de pollo",
+      "establecimiento": "Chifa Express UL",
+      "zona": "Frente a Puerta 3",
+      "precio": 13,
+      "categoria": "plato_fuerte",
+      "etiquetas": [
+        "caliente",
+        "contundente",
+        "proteina_animal",
+        "rapido"
+      ],
+      "aporte": {
+        "proteina": "alta",
+        "verdura": "media",
+        "carbohidrato": "alta"
+      },
+      "tiempo_cola_min": 8,
+      "caminando_min": 2,
+      "horario": {
+        "desde": "11:00",
+        "hasta": "21:00"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "vegetariano": false,
+      "notas": "Porción grande, alcanza para compartir.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani",
+        "gluten"
+      ],
+      "procedencia_dato": "Declaración del establecimiento",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m04",
+      "plato": "Arroz chaufa de verduras",
+      "establecimiento": "Chifa Express UL",
+      "zona": "Frente a Puerta 3",
+      "precio": 11,
+      "categoria": "plato_fuerte",
+      "etiquetas": [
+        "caliente",
+        "vegetariano",
+        "rapido"
+      ],
+      "aporte": {
+        "proteina": "media",
+        "verdura": "alta",
+        "carbohidrato": "alta"
+      },
+      "tiempo_cola_min": 8,
+      "caminando_min": 2,
+      "horario": {
+        "desde": "11:00",
+        "hasta": "21:00"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "vegetariano": true,
+      "notas": "Se puede pedir con huevo por S/2 más.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [
+        "lactosa"
+      ],
+      "alergenos_no_verificados": [
+        "mani",
+        "gluten"
+      ],
+      "procedencia_dato": "Declaración del establecimiento",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m05",
+      "plato": "Caldo de gallina",
+      "establecimiento": "Caldos Don Beto",
+      "zona": "Manuel Olguín, 3 cuadras",
+      "precio": 12,
+      "categoria": "sopa",
+      "etiquetas": [
+        "caliente",
+        "reconstituyente",
+        "proteina_animal",
+        "sopa"
+      ],
+      "aporte": {
+        "proteina": "alta",
+        "verdura": "media",
+        "carbohidrato": "media"
+      },
+      "tiempo_cola_min": 6,
+      "caminando_min": 6,
+      "horario": {
+        "desde": "06:30",
+        "hasta": "11:30"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "vegetariano": false,
+      "notas": "Solo mañanas. La opción típica cuando dormiste poco.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [
+        "lactosa",
+        "mani",
+        "gluten"
+      ],
+      "alergenos_no_verificados": [],
+      "procedencia_dato": "Relevamiento de campo LEAD",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "alto"
+    },
+    {
+      "id": "m06",
+      "plato": "Pan con chicharrón + camote",
+      "establecimiento": "Sanguchería La Esquina",
+      "zona": "Esquina Olguín / Los Álamos",
+      "precio": 9,
+      "categoria": "sandwich",
+      "etiquetas": [
+        "rapido",
+        "contundente",
+        "proteina_animal",
+        "desayuno"
+      ],
+      "aporte": {
+        "proteina": "alta",
+        "verdura": "baja",
+        "carbohidrato": "alta"
+      },
+      "tiempo_cola_min": 4,
+      "caminando_min": 3,
+      "horario": {
+        "desde": "06:00",
+        "hasta": "11:00"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "vegetariano": false,
+      "notas": "Ideal si sales corriendo a la primera clase.",
+      "alergenos_presentes": [
+        "gluten"
+      ],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani"
+      ],
+      "procedencia_dato": "Declaración del establecimiento",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m07",
+      "plato": "Pan con pollo + té",
+      "establecimiento": "Cafetín Puerta 1",
+      "zona": "Dentro del campus",
+      "precio": 7,
+      "categoria": "sandwich",
+      "etiquetas": [
+        "rapido",
+        "economico",
+        "proteina_animal",
+        "desayuno"
+      ],
+      "aporte": {
+        "proteina": "media",
+        "verdura": "baja",
+        "carbohidrato": "media"
+      },
+      "tiempo_cola_min": 5,
+      "caminando_min": 0,
+      "horario": {
+        "desde": "07:00",
+        "hasta": "20:00"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "vegetariano": false,
+      "notas": "No hay que salir del campus.",
+      "alergenos_presentes": [
+        "gluten"
+      ],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani"
+      ],
+      "procedencia_dato": "Declaración del establecimiento",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m08",
+      "plato": "Ensalada de quinua con pollo",
+      "establecimiento": "Verde Punto",
+      "zona": "Javier Prado, galería",
+      "precio": 15,
+      "categoria": "ensalada",
+      "etiquetas": [
+        "ligero",
+        "proteina_animal",
+        "verdura"
+      ],
+      "aporte": {
+        "proteina": "alta",
+        "verdura": "alta",
+        "carbohidrato": "media"
+      },
+      "tiempo_cola_min": 7,
+      "caminando_min": 8,
+      "horario": {
+        "desde": "11:00",
+        "hasta": "17:00"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "vegetariano": false,
+      "notas": "La opción con más verdura del mapeo.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [
+        "gluten"
+      ],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani"
+      ],
+      "procedencia_dato": "Relevamiento de campo LEAD",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m09",
+      "plato": "Ensalada de fideos con verduras",
+      "establecimiento": "Verde Punto",
+      "zona": "Javier Prado, galería",
+      "precio": 12,
+      "categoria": "ensalada",
+      "etiquetas": [
+        "ligero",
+        "vegetariano",
+        "verdura"
+      ],
+      "aporte": {
+        "proteina": "baja",
+        "verdura": "alta",
+        "carbohidrato": "media"
+      },
+      "tiempo_cola_min": 7,
+      "caminando_min": 8,
+      "horario": {
+        "desde": "11:00",
+        "hasta": "17:00"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "vegetariano": true,
+      "notas": "Se puede pedir para llevar.",
+      "alergenos_presentes": [
+        "gluten"
+      ],
+      "alergenos_ausentes_verificados": [
+        "mani"
+      ],
+      "alergenos_no_verificados": [
+        "lactosa"
+      ],
+      "procedencia_dato": "Relevamiento de campo LEAD",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "alto"
+    },
+    {
+      "id": "m10",
+      "plato": "1/4 de pollo a la brasa con papas",
+      "establecimiento": "Brasas del Sur",
+      "zona": "Av. Primavera, 5 cuadras",
+      "precio": 18,
+      "categoria": "plato_fuerte",
+      "etiquetas": [
+        "caliente",
+        "contundente",
+        "proteina_animal",
+        "compartir"
+      ],
+      "aporte": {
+        "proteina": "alta",
+        "verdura": "baja",
+        "carbohidrato": "alta"
+      },
+      "tiempo_cola_min": 14,
+      "caminando_min": 12,
+      "horario": {
+        "desde": "12:00",
+        "hasta": "23:00"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "vegetariano": false,
+      "notas": "El más caro del mapeo. Suele salir mejor compartido entre dos.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani",
+        "gluten"
+      ],
+      "procedencia_dato": "Relevamiento de campo LEAD",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m11",
+      "plato": "Lomo saltado con arroz",
+      "establecimiento": "Menú Doña Rosa",
+      "zona": "Manuel Olguín, 2 cuadras",
+      "precio": 14,
+      "categoria": "plato_fuerte",
+      "etiquetas": [
+        "caliente",
+        "contundente",
+        "proteina_animal"
+      ],
+      "aporte": {
+        "proteina": "alta",
+        "verdura": "media",
+        "carbohidrato": "alta"
+      },
+      "tiempo_cola_min": 12,
+      "caminando_min": 4,
+      "horario": {
+        "desde": "12:00",
+        "hasta": "15:30"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "vegetariano": false,
+      "notas": "Plato del día los jueves, ahí baja a S/12.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [
+        "lactosa"
+      ],
+      "alergenos_no_verificados": [
+        "mani",
+        "gluten"
+      ],
+      "procedencia_dato": "Declaración del establecimiento",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m12",
+      "plato": "Salchipapa clásica",
+      "establecimiento": "Carrito de la Puerta 3",
+      "zona": "Puerta 3, vereda",
+      "precio": 7,
+      "categoria": "snack",
+      "etiquetas": [
+        "rapido",
+        "economico",
+        "frito"
+      ],
+      "aporte": {
+        "proteina": "baja",
+        "verdura": "baja",
+        "carbohidrato": "alta"
+      },
+      "tiempo_cola_min": 5,
+      "caminando_min": 1,
+      "horario": {
+        "desde": "17:00",
+        "hasta": "23:00"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "vegetariano": false,
+      "notas": "Barato y rápido, pero es lo que menos aporta del mapeo.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani",
+        "gluten"
+      ],
+      "procedencia_dato": "Declaración del establecimiento",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m13",
+      "plato": "Menestrón con pan",
+      "establecimiento": "Comedor El Paradero",
+      "zona": "Paradero Javier Prado",
+      "precio": 9,
+      "categoria": "sopa",
+      "etiquetas": [
+        "caliente",
+        "verdura",
+        "vegetariano",
+        "sopa"
+      ],
+      "aporte": {
+        "proteina": "media",
+        "verdura": "alta",
+        "carbohidrato": "alta"
+      },
+      "tiempo_cola_min": 10,
+      "caminando_min": 7,
+      "horario": {
+        "desde": "11:30",
+        "hasta": "16:00"
+      },
+      "dias": [
+        1,
+        3,
+        5
+      ],
+      "vegetariano": true,
+      "notas": "Solo lunes, miércoles y viernes.",
+      "alergenos_presentes": [
+        "gluten"
+      ],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani"
+      ],
+      "procedencia_dato": "Relevamiento de campo LEAD",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m14",
+      "plato": "Ají de gallina con arroz",
+      "establecimiento": "Menú Doña Rosa",
+      "zona": "Manuel Olguín, 2 cuadras",
+      "precio": 12,
+      "categoria": "plato_fuerte",
+      "etiquetas": [
+        "caliente",
+        "contundente",
+        "proteina_animal"
+      ],
+      "aporte": {
+        "proteina": "alta",
+        "verdura": "baja",
+        "carbohidrato": "alta"
+      },
+      "tiempo_cola_min": 12,
+      "caminando_min": 4,
+      "horario": {
+        "desde": "12:00",
+        "hasta": "15:30"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "vegetariano": false,
+      "notas": "Sale con papa y huevo.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani",
+        "gluten"
+      ],
+      "procedencia_dato": "Declaración del establecimiento",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m15",
+      "plato": "Tacu tacu con bistec",
+      "establecimiento": "Criollo Olguín",
+      "zona": "Manuel Olguín, 4 cuadras",
+      "precio": 16,
+      "categoria": "plato_fuerte",
+      "etiquetas": [
+        "caliente",
+        "contundente",
+        "proteina_animal",
+        "menestra"
+      ],
+      "aporte": {
+        "proteina": "alta",
+        "verdura": "baja",
+        "carbohidrato": "alta"
+      },
+      "tiempo_cola_min": 11,
+      "caminando_min": 9,
+      "horario": {
+        "desde": "12:00",
+        "hasta": "22:00"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "vegetariano": false,
+      "notas": "Porción bien servida.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani",
+        "gluten"
+      ],
+      "procedencia_dato": "Relevamiento de campo LEAD",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m16",
+      "plato": "Empanada de pollo + jugo de naranja",
+      "establecimiento": "Cafetín Puerta 1",
+      "zona": "Dentro del campus",
+      "precio": 8,
+      "categoria": "snack",
+      "etiquetas": [
+        "rapido",
+        "economico",
+        "desayuno"
+      ],
+      "aporte": {
+        "proteina": "media",
+        "verdura": "baja",
+        "carbohidrato": "media"
+      },
+      "tiempo_cola_min": 4,
+      "caminando_min": 0,
+      "horario": {
+        "desde": "07:00",
+        "hasta": "20:00"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "vegetariano": false,
+      "notas": "Sirve para tapar el hueco entre clases.",
+      "alergenos_presentes": [
+        "gluten"
+      ],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani"
+      ],
+      "procedencia_dato": "Declaración del establecimiento",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m17",
+      "plato": "Avena con plátano y pan",
+      "establecimiento": "Carretilla del Desayuno",
+      "zona": "Puerta 1, vereda",
+      "precio": 5,
+      "categoria": "desayuno",
+      "etiquetas": [
+        "caliente",
+        "economico",
+        "desayuno",
+        "vegetariano"
+      ],
+      "aporte": {
+        "proteina": "baja",
+        "verdura": "baja",
+        "carbohidrato": "alta"
+      },
+      "tiempo_cola_min": 3,
+      "caminando_min": 1,
+      "horario": {
+        "desde": "06:30",
+        "hasta": "10:30"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "vegetariano": true,
+      "notas": "La opción de S/5 para arrancar el día.",
+      "alergenos_presentes": [
+        "gluten"
+      ],
+      "alergenos_ausentes_verificados": [
+        "mani"
+      ],
+      "alergenos_no_verificados": [
+        "lactosa"
+      ],
+      "procedencia_dato": "Declaración del establecimiento",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "alto"
+    },
+    {
+      "id": "m18",
+      "plato": "Sopa criolla",
+      "establecimiento": "Comedor El Paradero",
+      "zona": "Paradero Javier Prado",
+      "precio": 7,
+      "categoria": "sopa",
+      "etiquetas": [
+        "caliente",
+        "economico",
+        "proteina_animal",
+        "sopa"
+      ],
+      "aporte": {
+        "proteina": "media",
+        "verdura": "media",
+        "carbohidrato": "media"
+      },
+      "tiempo_cola_min": 9,
+      "caminando_min": 7,
+      "horario": {
+        "desde": "11:30",
+        "hasta": "16:00"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "vegetariano": false,
+      "notas": "Se puede pedir sola, sin segundo.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani",
+        "gluten"
+      ],
+      "procedencia_dato": "Relevamiento de campo LEAD",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m19",
+      "plato": "Hamburguesa de la casa con papas",
+      "establecimiento": "Burger Olguín",
+      "zona": "Manuel Olguín, 3 cuadras",
+      "precio": 15,
+      "categoria": "sandwich",
+      "etiquetas": [
+        "rapido",
+        "contundente",
+        "proteina_animal",
+        "frito"
+      ],
+      "aporte": {
+        "proteina": "alta",
+        "verdura": "baja",
+        "carbohidrato": "alta"
+      },
+      "tiempo_cola_min": 10,
+      "caminando_min": 6,
+      "horario": {
+        "desde": "16:00",
+        "hasta": "23:30"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "vegetariano": false,
+      "notas": "Abre recién en la tarde.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani",
+        "gluten"
+      ],
+      "procedencia_dato": "Relevamiento de campo LEAD",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m20",
+      "plato": "Menú vegetariano: soya guisada con arroz y ensalada",
+      "establecimiento": "Almuerzos Sana Vida",
+      "zona": "Los Álamos, 4 cuadras",
+      "precio": 11,
+      "categoria": "menu_completo",
+      "etiquetas": [
+        "caliente",
+        "vegetariano",
+        "verdura",
+        "menestra"
+      ],
+      "aporte": {
+        "proteina": "media",
+        "verdura": "alta",
+        "carbohidrato": "alta"
+      },
+      "tiempo_cola_min": 8,
+      "caminando_min": 8,
+      "horario": {
+        "desde": "12:00",
+        "hasta": "15:00"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "vegetariano": true,
+      "notas": "Cambia de guiso todos los días.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani",
+        "gluten"
+      ],
+      "procedencia_dato": "Relevamiento de campo LEAD",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m21",
+      "plato": "Anticuchos con papa y choclo",
+      "establecimiento": "Anticuchería Nocturna",
+      "zona": "Puerta 3, vereda",
+      "precio": 13,
+      "categoria": "plato_fuerte",
+      "etiquetas": [
+        "caliente",
+        "proteina_animal",
+        "noche"
+      ],
+      "aporte": {
+        "proteina": "alta",
+        "verdura": "baja",
+        "carbohidrato": "media"
+      },
+      "tiempo_cola_min": 12,
+      "caminando_min": 1,
+      "horario": {
+        "desde": "18:30",
+        "hasta": "23:59"
+      },
+      "dias": [
+        4,
+        5,
+        6
+      ],
+      "vegetariano": false,
+      "notas": "Solo jueves a sábado, de noche.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani",
+        "gluten"
+      ],
+      "procedencia_dato": "Declaración del establecimiento",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m22",
+      "plato": "Yogurt con granola y fruta",
+      "establecimiento": "Cafetín Puerta 1",
+      "zona": "Dentro del campus",
+      "precio": 6,
+      "categoria": "snack",
+      "etiquetas": [
+        "ligero",
+        "rapido",
+        "vegetariano",
+        "desayuno"
+      ],
+      "aporte": {
+        "proteina": "media",
+        "verdura": "baja",
+        "carbohidrato": "media"
+      },
+      "tiempo_cola_min": 3,
+      "caminando_min": 0,
+      "horario": {
+        "desde": "07:00",
+        "hasta": "20:00"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "vegetariano": true,
+      "notas": "Cuando no da el estómago para un plato completo.",
+      "alergenos_presentes": [
+        "lactosa"
+      ],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "mani",
+        "gluten"
+      ],
+      "procedencia_dato": "Declaración del establecimiento",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m23",
+      "plato": "Pollo al horno con puré y ensalada",
+      "establecimiento": "Almuerzos Sana Vida",
+      "zona": "Los Álamos, 4 cuadras",
+      "precio": 14,
+      "categoria": "plato_fuerte",
+      "etiquetas": [
+        "caliente",
+        "proteina_animal",
+        "verdura"
+      ],
+      "aporte": {
+        "proteina": "alta",
+        "verdura": "alta",
+        "carbohidrato": "media"
+      },
+      "tiempo_cola_min": 8,
+      "caminando_min": 8,
+      "horario": {
+        "desde": "12:00",
+        "hasta": "15:00"
+      },
+      "dias": [
+        2,
+        4
+      ],
+      "vegetariano": false,
+      "notas": "Solo martes y jueves.",
+      "alergenos_presentes": [],
+      "alergenos_ausentes_verificados": [
+        "lactosa"
+      ],
+      "alergenos_no_verificados": [
+        "mani",
+        "gluten"
+      ],
+      "procedencia_dato": "Relevamiento de campo LEAD",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    },
+    {
+      "id": "m24",
+      "plato": "Emoliente con pan con palta",
+      "establecimiento": "Carretilla del Desayuno",
+      "zona": "Puerta 1, vereda",
+      "precio": 4,
+      "categoria": "desayuno",
+      "etiquetas": [
+        "caliente",
+        "economico",
+        "vegetariano",
+        "desayuno"
+      ],
+      "aporte": {
+        "proteina": "baja",
+        "verdura": "media",
+        "carbohidrato": "media"
+      },
+      "tiempo_cola_min": 2,
+      "caminando_min": 1,
+      "horario": {
+        "desde": "06:30",
+        "hasta": "10:30"
+      },
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "vegetariano": true,
+      "notas": "La opción más barata del mapeo completo.",
+      "alergenos_presentes": [
+        "gluten"
+      ],
+      "alergenos_ausentes_verificados": [],
+      "alergenos_no_verificados": [
+        "lactosa",
+        "mani"
+      ],
+      "procedencia_dato": "Declaración del establecimiento",
+      "fecha_actualizacion": "2026-09-01",
+      "nivel_confianza": "medio"
+    }
+  ]
+}
