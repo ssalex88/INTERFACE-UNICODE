@@ -1,0 +1,2 @@
+reference_id,name,latitude,longitude,address,reference_definition,source_url,verified_at
+CAMPUS-REF-001,Universidad de Lima - Campus Center Point,-12.0775,-76.9886,"Av. Javier Prado Este 4600, Santiago de Surco 15023, Lima, Perú","Punto central aproximado del campus principal de la Universidad de Lima, ubicado en la intersecció¡³¾n de Av. Javier Prado Este y Av. Primavera. Este punto representa el centro geográ¡³fico del campus y se usa como origen para todas las mediciones de distancia caminando.",https://www.ulima.edu.pe/,2026-09-05
